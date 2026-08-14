@@ -142,7 +142,7 @@ export default function App() {
           download="靳煜飞-3D场景作品集.pdf"
           aria-label="下载靳煜飞的最新作品集 PDF"
         >
-          <span>作品集下载</span>
+          <span>下载链接</span>
           <Arrow />
         </a>
         <span className="nav-scroll-hint" aria-hidden="true" />
@@ -216,7 +216,7 @@ export default function App() {
       <section className="projects section" id="work">
         <div className="shell">
           <div className="section-kicker"><span>02</span><p>SELECTED WORKS / 个人作品</p><div className="section-summary">精选场景、载具与道具作品，从设计逻辑到引擎呈现，建立完整视觉叙事。</div></div>
-          <nav className="project-jump-nav" aria-label="作品快速导航">
+          <nav className="project-jump-nav tech-scroll" aria-label="作品快速导航">
             {displayedProjects.map((project, index) => (
               <a href={`#project-${project.id}`} key={project.id} aria-label={`跳转到作品 ${String(index + 1).padStart(2, '0')}：${project.title}`}>
                 <img src={project.image} alt="" loading="lazy" />
@@ -276,9 +276,19 @@ export default function App() {
         <div className="shell contact-inner">
           <div className="section-kicker light"><span>06</span><p>CONTACT / 保持联系</p><div className="section-summary">如果你正在寻找一名重视画面、流程与协作的场景设计师——</div></div>
           <div className="contact-bottom">
-            <div><small>E-MAIL</small><a href="mailto:188421520@qq.com">188421520@qq.com</a></div>
-            <div><small>PHONE</small><a href="tel:+8619160243320">+86 191 6024 3320</a></div>
-            <p>靳煜飞 · 3D ENVIRONMENT ARTIST<br />© 2026 PORTFOLIO</p>
+            <section className="contact-identity" aria-label="个人身份信息">
+              <div className="identity-card-head"><span>PROFILE ID / 01</span><span>AVAILABLE FOR OPPORTUNITIES</span></div>
+              <div className="identity-name"><small>NAME / 姓名</small><strong>靳煜飞</strong><span>JIN YUFEI</span></div>
+              <dl className="identity-details">
+                <div><dt>POSITION / 岗位</dt><dd>3D 场景设计</dd></div>
+                <div><dt>SCHOOL / 学校</dt><dd>西安美术学院</dd></div>
+                <div><dt>GRADE / 年级</dt><dd>2028 届</dd></div>
+              </dl>
+            </section>
+            <section className="contact-channel-panel" aria-label="联系方式">
+              <div><small>E-MAIL</small><a href="mailto:188421520@qq.com">188421520@qq.com</a></div>
+              <div><small>PHONE</small><a href="tel:+8619160243320">+86 191 6024 3320</a></div>
+            </section>
           </div>
         </div>
       </footer>
@@ -297,7 +307,7 @@ export default function App() {
             <div><strong>{String(activeCasePage + 1).padStart(2, '0')}</strong><i>/</i><span>{String(projectCasePages[activeCase.id].length).padStart(2, '0')}</span></div>
             <button className="case-nav next" type="button" onClick={() => setActiveCasePage(page => (page + 1) % projectCasePages[activeCase.id].length)} aria-label="下一页"><small>下一页</small><span>→</span></button>
           </div>
-          <div className="case-thumbs">
+          <div className="case-thumbs tech-scroll">
             {projectCasePages[activeCase.id].map((page, pageIndex) => (
               <button type="button" className={pageIndex === activeCasePage ? 'is-active' : ''} onClick={() => setActiveCasePage(pageIndex)} key={page} aria-label={`查看第 ${pageIndex + 1} 页`}>
                 <img src={page} alt="" />
