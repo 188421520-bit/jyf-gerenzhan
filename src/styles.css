@@ -392,6 +392,58 @@
   }
 }
 
+/* Compact navigation and a safe text box for the Chinese hero title. */
+.site-header,
+.site-header.is-scrolled{
+  height:42px;
+  padding:3px 5px;
+  align-items:center;
+}
+.site-header .brand,
+.site-header.is-scrolled .brand,
+.site-header nav,
+.portfolio-download{
+  height:34px;
+}
+.site-header nav{
+  align-items:center;
+  padding:0;
+}
+.site-header nav a{
+  display:flex;
+  height:100%;
+  align-items:center;
+  justify-content:center;
+  padding-block:0;
+  line-height:1;
+}
+.site-header .brand,
+.portfolio-download{
+  align-self:center;
+}
+.hero-poster-title{
+  display:block;
+  width:max-content;
+  max-width:none;
+  height:auto;
+  overflow:visible;
+  line-height:1.08;
+  padding:.08em .1em .1em 0;
+}
+@media(max-width:900px){
+  .site-header,
+  .site-header.is-scrolled{
+    height:40px;
+    padding:3px 4px;
+  }
+  .site-header .brand,
+  .site-header.is-scrolled .brand,
+  .site-header nav,
+  .portfolio-download{
+    height:32px;
+  }
+}
+
 /* Poster-led hero composition: keep the scene readable and cinematic. */
 .hero-video{
   filter:brightness(.62) saturate(.82) contrast(1.08);
@@ -1180,6 +1232,160 @@ body.case-open{overflow:hidden}
   .project-jump-nav{grid-template-columns:repeat(6,150px)}
 }
 
+/* 2026-08-14: compact responsive header and persistent download action. */
+.site-header,
+.site-header.is-scrolled{
+  box-sizing:border-box;
+  height:50px;
+  padding:4px 6px;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:7px;
+}
+.site-header .brand,
+.site-header.is-scrolled .brand{
+  height:40px;
+}
+.site-header nav{
+  min-width:0;
+  height:40px;
+  padding:0 0 3px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.site-header nav::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+.portfolio-download{
+  position:static;
+  grid-column:3;
+  grid-row:1;
+  align-self:center;
+  height:40px;
+  margin:0;
+}
+
+@media(max-width:900px){
+  .site-header,
+  .site-header.is-scrolled{
+    height:46px;
+    padding:3px 5px;
+    grid-template-columns:auto minmax(0,1fr) auto;
+  }
+  .site-header .brand,
+  .site-header.is-scrolled .brand,
+  .portfolio-download{
+    height:38px;
+  }
+  .site-header nav{
+    height:38px;
+  }
+}
+
+/* 2026-08-14: final compact header and unclipped hero title. */
+.site-header,
+.site-header.is-scrolled{
+  height:42px;
+  padding:3px 5px;
+  align-items:center;
+}
+.site-header .brand,
+.site-header.is-scrolled .brand,
+.site-header nav,
+.portfolio-download{
+  height:34px;
+}
+.site-header nav{
+  align-items:center;
+  padding:0;
+}
+.site-header nav a{
+  display:flex;
+  height:100%;
+  align-items:center;
+  justify-content:center;
+  padding-block:0;
+  line-height:1;
+}
+.site-header .brand,
+.portfolio-download{
+  align-self:center;
+}
+.hero-poster-title{
+  display:block;
+  width:max-content;
+  max-width:none;
+  height:auto;
+  overflow:visible;
+  line-height:1.08;
+  padding:.08em .1em .1em 0;
+}
+@media(max-width:900px){
+  .site-header,
+  .site-header.is-scrolled{
+    height:40px;
+    padding:3px 4px;
+  }
+  .site-header .brand,
+  .site-header.is-scrolled .brand,
+  .site-header nav,
+  .portfolio-download{
+    height:32px;
+  }
+}
+
+/* 2026-08-14: final compact header overrides. */
+.site-header,
+.site-header.is-scrolled{
+  box-sizing:border-box;
+  height:50px;
+  padding:4px 6px;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:7px;
+}
+.site-header .brand,
+.site-header.is-scrolled .brand{
+  height:40px;
+}
+.site-header nav{
+  min-width:0;
+  height:40px;
+  padding:0 0 3px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.site-header nav::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+.portfolio-download{
+  position:static;
+  grid-column:3;
+  grid-row:1;
+  align-self:center;
+  height:40px;
+  margin:0;
+}
+
+@media(max-width:900px){
+  .site-header,
+  .site-header.is-scrolled{
+    height:46px;
+    padding:3px 5px;
+    grid-template-columns:auto minmax(0,1fr) auto;
+  }
+  .site-header .brand,
+  .site-header.is-scrolled .brand,
+  .portfolio-download{height:38px}
+  .site-header nav{height:38px}
+}
+
 /* 2026-08-14: compact responsive navigation and portfolio download. */
 .site-header,
 .site-header.is-scrolled{
@@ -1611,4 +1817,107 @@ body.case-open{overflow:hidden}
   .section-kicker>.section-summary{grid-column:2;grid-row:2}
   .section-kicker:after{grid-column:1/-1;grid-row:3}
   .project-jump-nav{grid-template-columns:repeat(6,150px)}
+}
+
+/* Final responsive header rules: keep these last so legacy mobile rules cannot win. */
+.site-header,
+.site-header.is-scrolled{
+  box-sizing:border-box;
+  height:50px;
+  padding:4px 6px;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  grid-template-rows:1fr;
+  column-gap:7px;
+  row-gap:0;
+}
+.site-header .brand,
+.site-header.is-scrolled .brand,
+.portfolio-download{
+  height:40px;
+}
+.site-header nav{
+  min-width:0;
+  height:40px;
+  padding:0 0 3px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.site-header nav::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+.portfolio-download{
+  position:static;
+  grid-column:3;
+  grid-row:1;
+  align-self:center;
+  margin:0;
+}
+@media(max-width:900px){
+  .site-header,
+  .site-header.is-scrolled{
+    height:46px;
+    padding:3px 5px;
+    grid-template-columns:auto minmax(0,1fr) auto;
+    grid-template-rows:1fr;
+    column-gap:6px;
+    row-gap:0;
+  }
+  .site-header .brand,
+  .site-header.is-scrolled .brand,
+  .portfolio-download,
+  .site-header nav{
+    height:38px;
+  }
+}
+
+/* Final visual correction: slimmer bar, centered labels and intact title glyphs. */
+.site-header,
+.site-header.is-scrolled{
+  height:42px;
+  padding:3px 5px;
+  align-items:center;
+}
+.site-header .brand,
+.site-header.is-scrolled .brand,
+.site-header nav,
+.portfolio-download{
+  height:34px;
+}
+.site-header nav{
+  align-items:center;
+  padding:0;
+}
+.site-header nav a{
+  display:flex;
+  height:100%;
+  padding-block:0;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.hero-poster-title{
+  display:block;
+  width:max-content;
+  max-width:none;
+  height:auto;
+  overflow:visible;
+  line-height:1.08;
+  padding:.08em .1em .1em 0;
+}
+@media(max-width:900px){
+  .site-header,
+  .site-header.is-scrolled{
+    height:40px;
+    padding:3px 4px;
+  }
+  .site-header .brand,
+  .site-header.is-scrolled .brand,
+  .site-header nav,
+  .portfolio-download{
+    height:32px;
+  }
 }
