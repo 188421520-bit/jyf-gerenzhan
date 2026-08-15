@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import MagicBentoEffects from './MagicBento'
+import BorderGlowEffects from './BorderGlow'
 
 const projects = [
   {
@@ -416,11 +416,11 @@ export default function App() {
       </section>
 
       <div className="content-viewport">
-      <div className="content-canvas bento-section" ref={contentCanvasRef}>
-      <MagicBentoEffects rootRef={contentCanvasRef} spotlightRadius={300} glowColor="109, 169, 255" />
+      <div className="content-canvas" ref={contentCanvasRef}>
+      <BorderGlowEffects rootRef={contentCanvasRef} edgeSensitivity={28} />
       <section className="about section shell" id="about">
         <div className="section-kicker"><span>01</span><p>PROFILE / 个人介绍</p><div className="section-summary">专注游戏 3D 场景设计，关注空间叙事、氛围塑造与资产复用。</div></div>
-        <div className="about-grid magic-bento-card" data-magic-bento>
+        <div className="about-grid border-glow-card" data-border-glow>
           <div className="portrait" role="img" aria-label="靳煜飞个人照片">
             <img src="/portfolio/resume-02.jpg" alt="靳煜飞个人经历与简历信息" loading="lazy" />
           </div>
@@ -442,7 +442,7 @@ export default function App() {
           <div className="section-kicker"><span>02</span><p>SELECTED WORKS / 个人作品</p><div className="section-summary">精选场景、载具与道具作品，从设计逻辑到引擎呈现，建立完整视觉叙事。</div></div>
           <nav className="project-jump-nav tech-scroll" aria-label="作品快速导航">
             {displayedProjects.map((project, index) => (
-              <a className="magic-bento-card" data-magic-bento href={`#project-${project.id}`} key={project.id} aria-label={`跳转到作品 ${String(index + 1).padStart(2, '0')}：${project.title}`}>
+              <a className="border-glow-card" data-border-glow href={`#project-${project.id}`} key={project.id} aria-label={`跳转到作品 ${String(index + 1).padStart(2, '0')}：${project.title}`}>
                 <img src={project.image} alt="" loading="lazy" />
                 <span>{String(index + 1).padStart(2, '0')}</span>
                 <strong>{project.title}</strong>
@@ -451,7 +451,7 @@ export default function App() {
           </nav>
           <div className="project-list">
             {displayedProjects.map((project, index) => (
-              <article className="project-card magic-bento-card" data-magic-bento id={`project-${project.id}`} key={project.id}>
+              <article className="project-card border-glow-card" data-border-glow id={`project-${project.id}`} key={project.id}>
                 <div className="project-meta">
                   <span className="project-number">/{String(index + 1).padStart(2, '0')}</span>
                   <div><small>{project.type}</small><h3>{project.title} <i>{project.en}</i></h3></div>
@@ -472,7 +472,7 @@ export default function App() {
         <div className="shell">
           <div className="section-kicker"><span>04</span><p>LEARNING HABITS / 学习习惯</p><div className="section-summary">主动建立知识结构、记录实践过程，并用长期训练校准自己的视觉判断。</div></div>
           <div className="learning-list">
-            <article className="learning-card magic-bento-card" data-magic-bento>
+            <article className="learning-card border-glow-card" data-border-glow>
               <div className="learning-meta">
                 <span>01 / LEARNING PROCESS</span>
                 <h3>学习过程</h3>
@@ -520,7 +520,7 @@ export default function App() {
         <div className="section-kicker"><span>05</span><p>CAPABILITIES / 个人优势</p><div className="section-summary">建立稳定流程，也保留对画面、体验和细节的敏感。</div></div>
         <div className="strength-grid">
           {strengths.map(([no, title, copy]) => (
-            <article className="magic-bento-card" data-magic-bento data-magic-motion="true" key={no}><span>{no}</span><div className="cap-icon"><CapabilityIcon type={no} /></div><h3>{title}</h3><p>{copy}</p></article>
+            <article className="border-glow-card" data-border-glow key={no}><span>{no}</span><div className="cap-icon"><CapabilityIcon type={no} /></div><h3>{title}</h3><p>{copy}</p></article>
           ))}
         </div>
         <div className="tool-marquee" aria-label="常用软件">
@@ -533,7 +533,7 @@ export default function App() {
         <div className="shell contact-inner">
           <div className="section-kicker light"><span>06</span><p>CONTACT / 保持联系</p><div className="section-summary">如果你正在寻找一名重视画面、流程与协作的场景设计师——</div></div>
           <div className="contact-bottom">
-            <section className="contact-identity magic-bento-card" data-magic-bento aria-label="个人身份信息">
+            <section className="contact-identity border-glow-card" data-border-glow aria-label="个人身份信息">
               <div className="identity-card-head"><span>PROFILE ID / 01</span><span>AVAILABLE FOR OPPORTUNITIES</span></div>
               <div className="identity-name"><small>NAME / 姓名</small><strong>靳煜飞</strong><span>JIN YUFEI</span></div>
               <dl className="identity-details">
@@ -543,8 +543,8 @@ export default function App() {
               </dl>
             </section>
             <section className="contact-channel-panel" aria-label="联系方式">
-              <div className="magic-bento-card" data-magic-bento><small>E-MAIL</small><a href="mailto:188421520@qq.com">188421520@qq.com</a></div>
-              <div className="magic-bento-card" data-magic-bento><small>PHONE</small><a href="tel:+8619160243320">+86 191 6024 3320</a></div>
+              <div className="border-glow-card" data-border-glow><small>E-MAIL</small><a href="mailto:188421520@qq.com">188421520@qq.com</a></div>
+              <div className="border-glow-card" data-border-glow><small>PHONE</small><a href="tel:+8619160243320">+86 191 6024 3320</a></div>
             </section>
           </div>
         </div>
