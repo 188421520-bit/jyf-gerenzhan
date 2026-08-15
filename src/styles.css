@@ -3172,3 +3172,185 @@ body.case-open{overflow:hidden}
   pointer-events:none;
   transform:translate(-50%,calc(-100% - 28px)) scale(var(--page-scale,1));
 }
+
+/* Keep the complete 1280×720 hero visible as one scaled poster in every browser. */
+.hero{
+  position:relative;
+  width:1280px;
+  min-width:1280px;
+  max-width:1280px;
+  height:720px;
+  min-height:720px;
+  max-height:720px;
+  overflow:hidden;
+}
+.hero-media{
+  z-index:1;
+  display:block;
+  visibility:visible;
+  opacity:1;
+  background:#0a1118 url('/media/outpost-03-poster.jpg') center/cover no-repeat;
+}
+.hero-video{
+  z-index:1;
+  display:block;
+  visibility:visible;
+  opacity:1;
+}
+.hero .scanline{z-index:2}
+.hero-shade{z-index:3}
+.hero-content.shell{
+  position:relative;
+  z-index:4;
+  display:block;
+  visibility:visible;
+  opacity:1;
+}
+.hero .hero-poster-title,
+.hero .hero-eyebrow,
+.hero .hero-title-wrap,
+.hero .hero-bottom{
+  visibility:visible;
+  opacity:1;
+}
+.hero .scroll-cue{z-index:5}
+
+/*
+ * Profile composition lock.
+ * The poster and its three facts form one 1168 x 506 design canvas. Browser
+ * zoom is handled by the outer page canvas, so media queries can no longer
+ * resize or reflow either half independently.
+ */
+.content-canvas #about .about-grid{
+  width:100%;
+  min-width:0;
+  max-width:none;
+  height:506px;
+  min-height:506px;
+  max-height:506px;
+  display:grid;
+  grid-template-columns:68% 32%;
+  grid-template-rows:506px;
+  gap:0;
+  align-items:stretch;
+  overflow:hidden;
+}
+.content-canvas #about .portrait{
+  grid-column:1;
+  grid-row:1;
+  width:100%;
+  min-width:0;
+  max-width:none;
+  height:506px;
+  min-height:506px;
+  max-height:506px;
+  aspect-ratio:auto;
+  padding:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#080b0d url('/portfolio/resume-02.jpg') center/contain no-repeat;
+}
+.content-canvas #about .portrait img{
+  position:relative;
+  z-index:0;
+  display:block;
+  flex:0 0 auto;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  height:auto;
+  min-height:0;
+  max-height:458px;
+  object-fit:contain;
+  object-position:center;
+}
+.content-canvas #about .about-copy{
+  grid-column:2;
+  grid-row:1;
+  width:100%;
+  min-width:0;
+  max-width:none;
+  height:506px;
+  min-height:506px;
+  max-height:506px;
+  padding:51px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-top:0;
+  border-left:1px solid rgba(255,255,255,.13);
+}
+.content-canvas #about .experience-row{
+  flex:0 0 auto;
+  width:272px;
+  min-width:272px;
+  max-width:272px;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:272px;
+  grid-template-rows:repeat(3,1fr);
+  gap:0;
+}
+.content-canvas #about .experience-row>div{
+  min-width:0;
+  min-height:0;
+  padding:24px 0;
+}
+.content-canvas #about .experience-row small{
+  font-size:12px;
+  line-height:1.2;
+}
+.content-canvas #about .experience-row strong{
+  margin-top:10px;
+  font-size:15px;
+  line-height:1.25;
+}
+.content-canvas #about .experience-row p{
+  margin-top:6px;
+  font-size:12px;
+  line-height:1.4;
+}
+
+/* The profile chapter uses the exact same shell and scale as the works below. */
+.content-canvas #about.about.section{
+  background:transparent;
+  border-top:0;
+  box-shadow:none;
+  padding-left:0;
+  padding-right:0;
+}
+.content-canvas #about.about.section::before,
+.content-canvas #about.about.section::after{
+  display:none;
+}
+.content-canvas #about .section-kicker{
+  width:100%;
+  min-width:0;
+  max-width:none;
+  min-height:150px;
+  grid-template-columns:108px minmax(0,1.35fr) minmax(260px,.65fr);
+  grid-template-rows:1fr 2px;
+  column-gap:18px;
+  row-gap:14px;
+  margin-bottom:52px;
+}
+.content-canvas #about .section-kicker>span{
+  font-size:77px;
+  line-height:.78;
+  white-space:nowrap;
+}
+.content-canvas #about .section-kicker>p{
+  font-size:38px;
+  line-height:.9;
+  white-space:nowrap;
+}
+.content-canvas #about .section-kicker>.section-summary{
+  max-width:520px;
+  font-size:12px;
+  line-height:1.9;
+  white-space:normal;
+}

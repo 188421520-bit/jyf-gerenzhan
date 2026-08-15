@@ -183,12 +183,10 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    let initialScale = null
     const updatePageScale = () => {
       const viewportWidth = document.documentElement.clientWidth
-      const fitScale = viewportWidth / 1280
-      if (initialScale === null) initialScale = fitScale
-      const scale = Math.min(initialScale, fitScale)
+      const fitScale = Math.min(1, viewportWidth / 1280)
+      const scale = fitScale
       const viewport = document.querySelector('.page-viewport')
       const canvas = document.querySelector('.page-canvas')
       document.documentElement.style.setProperty('--page-scale', String(scale))
@@ -422,7 +420,7 @@ export default function App() {
         <div className="section-kicker"><span>01</span><p>PROFILE / 个人介绍</p><div className="section-summary">专注游戏 3D 场景设计，关注空间叙事、氛围塑造与资产复用。</div></div>
         <div className="about-grid border-glow-card" data-border-glow>
           <div className="portrait" role="img" aria-label="靳煜飞个人照片">
-            <img src="/portfolio/resume-02.jpg" alt="靳煜飞个人经历与简历信息" loading="lazy" />
+            <img src="/portfolio/resume-02.jpg" alt="靳煜飞个人经历与简历信息" loading="eager" fetchPriority="high" />
           </div>
           <div className="about-copy">
             <p className="overline">HELLO, I'M JIN YUFEI</p>
