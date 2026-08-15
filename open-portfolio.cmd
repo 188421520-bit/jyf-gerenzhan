@@ -1,17 +1,40 @@
 @echo off
 setlocal
-set "PROJECT_DIR=C:\Users\18842.夜未央\Desktop\作品集\个人站"
 
-powershell.exe -NoProfile -Command "if (Get-NetTCPConnection -LocalPort 5173 -State Listen -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-if errorlevel 1 (
-  start "JYF Portfolio Server" /min cmd.exe /c ""%PROJECT_DIR%\start-portfolio-server.cmd""
-)
+set "PROJECT_DIR=%~dp0"
+set "SITE_URL=http://127.0.0.1:5173/"
 
-powershell.exe -NoProfile -Command "$limit=(Get-Date).AddSeconds(20); do { if (Get-NetTCPConnection -LocalPort 5173 -State Listen -ErrorAction SilentlyContinue) { exit 0 }; Start-Sleep -Milliseconds 300 } while ((Get-Date) -lt $limit); exit 1"
+call :is_ready
+if not errorlevel 1 goto :open_site
+
+where npm.cmd >nul 2>nul
 if errorlevel 1 (
-  echo Website service failed to start. Please keep this window open and contact Codex.
+  echo ERROR: Node.js and npm were not found.
+  echo Install Node.js 20 or newer, then try again.
   pause
   exit /b 1
 )
 
-start "" "http://localhost:5173/#top"
+echo Starting the portfolio editor preview...
+powershell.exe -NoProfile -Command ^
+  "$npm=(Get-Command npm.cmd).Source; Start-Process -FilePath $npm -ArgumentList @('run','dev','--','--host','127.0.0.1','--port','5173','--strictPort') -WorkingDirectory $env:PROJECT_DIR -WindowStyle Minimized"
+
+for /l %%I in (1,1,50) do (
+  call :is_ready
+  if not errorlevel 1 goto :open_site
+  powershell.exe -NoProfile -Command "Start-Sleep -Milliseconds 300"
+)
+
+echo ERROR: The portfolio server did not start within 15 seconds.
+echo Another program may already be using port 5173.
+pause
+exit /b 1
+
+:open_site
+start "" "%SITE_URL%#top"
+exit /b 0
+
+:is_ready
+powershell.exe -NoProfile -Command ^
+  "try { $r=Invoke-WebRequest -Uri '%SITE_URL%' -UseBasicParsing -TimeoutSec 2; if ($r.StatusCode -eq 200 -and $r.Content -match 'id=.root.') { exit 0 } } catch {}; exit 1"
+exit /b %errorlevel%
