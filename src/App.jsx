@@ -91,6 +91,28 @@ const projectCasePages = {
     '/portfolio/foundation-13.jpg',
     '/portfolio/foundation-14.jpg',
   ],
+  'note-ue': Array.from({ length: 20 }, (_, index) => `/notes/ue/ue-note-${String(index + 1).padStart(2, '0')}.png${index === 1 ? '?v=20260815-2' : ''}`),
+}
+
+const projectCaseThumbs = {
+  'note-ue': Array.from({ length: 20 }, (_, index) => `/notes/ue/thumbs/ue-note-${String(index + 1).padStart(2, '0')}.jpg${index === 1 ? '?v=20260815-2' : ''}`),
+}
+
+const getCaseThumbnail = (caseId, page, pageIndex) => {
+  if (projectCaseThumbs[caseId]?.[pageIndex]) return projectCaseThumbs[caseId][pageIndex]
+  const cleanPage = page.split('?')[0]
+  return cleanPage.startsWith('/portfolio/')
+    ? cleanPage.replace('/portfolio/', '/portfolio/thumbs/')
+    : cleanPage
+}
+
+const noteCases = {
+  'UE专项': {
+    id: 'note-ue',
+    title: 'UE专项',
+    en: 'UNREAL ENGINE NOTES',
+    kind: 'note',
+  },
 }
 
 function CapabilityIcon({ type }) {
@@ -248,17 +270,18 @@ export default function App() {
 
   const handleCaseImageLoad = (event) => {
     updateCaseLayout(event.currentTarget)
-    if (activeCase?.id === '06') requestAnimationFrame(fitFoundationImage)
+    requestAnimationFrame(fitCaseImage)
   }
 
-  const fitFoundationImage = () => {
-    if (activeCase?.id !== '06') return
+  const fitCaseImage = () => {
+    if (!activeCase) return
     const stage = caseStageRef.current
     const image = caseImageRef.current
     if (!stage || !image || !image.naturalWidth || !image.naturalHeight) return
     const fitScale = Math.min(
-      stage.clientWidth / image.naturalWidth,
+      Math.min(1120, stage.clientWidth) / image.naturalWidth,
       stage.clientHeight / image.naturalHeight,
+      1,
     )
     setCaseFitSize({
       width: image.naturalWidth * fitScale,
@@ -267,18 +290,29 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (activeCase?.id !== '06' || !caseStageRef.current) return undefined
-    const observer = new ResizeObserver(fitFoundationImage)
+    if (!activeCase || !caseStageRef.current) return undefined
+    const updateOpenCase = () => {
+      const image = caseImageRef.current
+      if (image?.complete) updateCaseLayout(image)
+      requestAnimationFrame(fitCaseImage)
+    }
+    const observer = new ResizeObserver(fitCaseImage)
     observer.observe(caseStageRef.current)
-    fitFoundationImage()
-    return () => observer.disconnect()
+    updateOpenCase()
+    window.addEventListener('resize', updateOpenCase, { passive: true })
+    window.visualViewport?.addEventListener('resize', updateOpenCase, { passive: true })
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', updateOpenCase)
+      window.visualViewport?.removeEventListener('resize', updateOpenCase)
+    }
   }, [activeCase, activeCasePage])
 
   const clampCasePan = (x, y, scale = caseZoom) => {
-    const image = caseImageRef.current
-    if (!image || scale <= 1) return { x: 0, y: 0 }
-    const maxX = image.clientWidth * (scale - 1) / 2
-    const maxY = image.clientHeight * (scale - 1) / 2
+    const stage = caseStageRef.current
+    if (!stage || !caseFitSize || scale <= 1) return { x: 0, y: 0 }
+    const maxX = Math.max(0, (caseFitSize.width * scale - stage.clientWidth) / 2)
+    const maxY = Math.max(0, (caseFitSize.height * scale - stage.clientHeight) / 2)
     return {
       x: Math.max(-maxX, Math.min(maxX, x)),
       y: Math.max(-maxY, Math.min(maxY, y)),
@@ -318,9 +352,10 @@ export default function App() {
   const handleCasePointerMove = (event) => {
     const drag = caseDragRef.current
     if (!drag || drag.pointerId !== event.pointerId || caseZoom <= 1) return
+    const dragSensitivity = 1 + (caseZoom - 1) * .5
     setCasePan(clampCasePan(
-      drag.originX + event.clientX - drag.startX,
-      drag.originY + event.clientY - drag.startY,
+      drag.originX + (event.clientX - drag.startX) / caseLayout.scale * dragSensitivity,
+      drag.originY + (event.clientY - drag.startY) / caseLayout.scale * dragSensitivity,
     ))
   }
 
@@ -493,7 +528,13 @@ export default function App() {
                           type="button"
                           className={activeNoteCategory === category ? 'is-active' : ''}
                           aria-pressed={activeNoteCategory === category}
-                          onClick={() => setActiveNoteCategory(category)}
+                          onClick={() => {
+                            setActiveNoteCategory(category)
+                            if (noteCases[category]) {
+                              setIsNoteMenuOpen(false)
+                              openCase(noteCases[category])
+                            }
+                          }}
                           key={category}
                         >
                           <small>{String(index + 1).padStart(2, '0')}</small>
@@ -552,11 +593,11 @@ export default function App() {
       </div>
       </div>
       {activeCase && (
-        <div className={`case-viewer${activeCase.id === '06' ? ' is-foundation' : ''}`} role="dialog" aria-modal="true" aria-label={`${activeCase.title} 完整案例`}>
+        <div className="case-viewer is-fit-gallery" role="dialog" aria-modal="true" aria-label={activeCase.kind === 'note' ? `${activeCase.title} 笔记详情` : `${activeCase.title} 完整案例`}>
           <div className="case-canvas-shell" style={{ width: `${1280 * caseLayout.scale}px`, height: `${caseLayout.canvasHeight * caseLayout.scale}px` }}>
-          <div className="case-canvas" style={{ '--case-stage-height': `${caseLayout.stageHeight}px`, '--case-canvas-height': `${caseLayout.canvasHeight}px`, transform: `scale(${caseLayout.scale})` }}>
+          <div className="case-canvas" style={{ '--case-stage-height': `${caseLayout.stageHeight}px`, '--case-canvas-height': `${caseLayout.canvasHeight}px`, zoom: caseLayout.scale }}>
           <header className="case-viewer-head">
-            <div><small>PROJECT CASE / {activeCase.id}</small><strong>{activeCase.title} <i>{activeCase.en}</i></strong></div>
+            <div><small>{activeCase.kind === 'note' ? 'NOTE ARCHIVE / UE' : `PROJECT CASE / ${activeCase.id}`}</small><strong>{activeCase.title} <i>{activeCase.en}</i></strong></div>
             <div className="case-progress"><span>{String(activeCasePage + 1).padStart(2, '0')}</span> / {String(projectCasePages[activeCase.id].length).padStart(2, '0')}</div>
             <button className="case-close" type="button" onClick={() => setActiveCase(null)} aria-label="关闭案例"><span>关闭</span><i aria-hidden="true">×</i></button>
           </header>
@@ -574,14 +615,17 @@ export default function App() {
               src={projectCasePages[activeCase.id][activeCasePage]}
               alt={`${activeCase.title} 案例第 ${activeCasePage + 1} 页`}
               draggable="false"
-              className={activeCase.id === '06' && caseFitSize ? 'is-fit-ready' : undefined}
+              className={caseFitSize ? 'is-fit-ready' : undefined}
               onLoad={handleCaseImageLoad}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
               style={{
-                ...(activeCase.id === '06' && caseFitSize ? {
-                  width: `${caseFitSize.width}px`,
-                  height: `${caseFitSize.height}px`,
+                ...(caseFitSize ? {
+                  width: `${caseFitSize.width * caseZoom}px`,
+                  height: `${caseFitSize.height * caseZoom}px`,
                 } : {}),
-                transform: `translate3d(${casePan.x}px,${casePan.y}px,0) scale(${caseZoom})`,
+                transform: `translate3d(calc(-50% + ${casePan.x}px),calc(-50% + ${casePan.y}px),0)`,
               }}
             />
             <div className="case-zoom-status" aria-live="polite"><span>{Math.round(caseZoom * 100)}%</span><small>{caseZoom > 1 ? '按住拖动查看' : '滚轮缩放'}</small></div>
@@ -594,7 +638,7 @@ export default function App() {
           <div className="case-thumbs tech-scroll">
             {projectCasePages[activeCase.id].map((page, pageIndex) => (
               <button type="button" className={pageIndex === activeCasePage ? 'is-active' : ''} onClick={() => setActiveCasePage(pageIndex)} key={page} aria-label={`查看第 ${pageIndex + 1} 页`}>
-                <img src={page} alt="" />
+                <img src={getCaseThumbnail(activeCase.id, page, pageIndex)} alt="" loading="lazy" decoding="async" />
                 <span>{String(pageIndex + 1).padStart(2, '0')}</span>
               </button>
             ))}
