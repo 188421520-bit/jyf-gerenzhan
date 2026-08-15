@@ -297,7 +297,7 @@ export default function App() {
           <header className="case-viewer-head">
             <div><small>PROJECT CASE / {activeCase.id}</small><strong>{activeCase.title} <i>{activeCase.en}</i></strong></div>
             <div className="case-progress"><span>{String(activeCasePage + 1).padStart(2, '0')}</span> / {String(projectCasePages[activeCase.id].length).padStart(2, '0')}</div>
-            <button type="button" onClick={() => setActiveCase(null)} aria-label="关闭案例">CLOSE ×</button>
+            <button className="case-close" type="button" onClick={() => setActiveCase(null)} aria-label="关闭案例"><span>关闭</span><i aria-hidden="true">×</i></button>
           </header>
           <div className="case-stage">
             <img src={projectCasePages[activeCase.id][activeCasePage]} alt={`${activeCase.title} 案例第 ${activeCasePage + 1} 页`} />

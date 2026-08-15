@@ -17,7 +17,7 @@ if errorlevel 1 (
 
 echo Starting the portfolio editor preview...
 powershell.exe -NoProfile -Command ^
-  "$npm=(Get-Command npm.cmd).Source; Start-Process -FilePath $npm -ArgumentList @('run','dev','--','--host','127.0.0.1','--port','5173','--strictPort') -WorkingDirectory $env:PROJECT_DIR -WindowStyle Minimized"
+  "Start-Process -FilePath $env:ComSpec -ArgumentList @('/d','/c','npm.cmd run dev -- --host 127.0.0.1 --port 5173 --strictPort') -WorkingDirectory $env:PROJECT_DIR -WindowStyle Minimized"
 
 for /l %%I in (1,1,50) do (
   call :is_ready
