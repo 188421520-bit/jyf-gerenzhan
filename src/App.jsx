@@ -194,6 +194,8 @@ export default function App() {
         <a className="scroll-cue" href="#about"><span /> SCROLL TO EXPLORE</a>
       </section>
 
+      <div className="content-viewport">
+      <div className="content-canvas">
       <section className="about section shell" id="about">
         <div className="section-kicker"><span>01</span><p>PROFILE / 个人介绍</p><div className="section-summary">专注游戏 3D 场景设计，关注空间叙事、氛围塑造与资产复用。</div></div>
         <div className="about-grid">
@@ -292,6 +294,8 @@ export default function App() {
           </div>
         </div>
       </footer>
+      </div>
+      </div>
       {activeCase && (
         <div className="case-viewer" role="dialog" aria-modal="true" aria-label={`${activeCase.title} 完整案例`}>
           <header className="case-viewer-head">
