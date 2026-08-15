@@ -133,11 +133,13 @@ function NoteCategoryIcon({ type }) {
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false)
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false)
   const [activeCase, setActiveCase] = useState(null)
   const [activeCasePage, setActiveCasePage] = useState(0)
   const [caseZoom, setCaseZoom] = useState(1)
   const [casePan, setCasePan] = useState({ x: 0, y: 0 })
   const [caseFitSize, setCaseFitSize] = useState(null)
+  const [caseLayout, setCaseLayout] = useState({ stageHeight: 630, canvasHeight: 858, scale: 1 })
   const [isCaseDragging, setIsCaseDragging] = useState(false)
   const [isNoteMenuOpen, setIsNoteMenuOpen] = useState(false)
   const [activeNoteCategory, setActiveNoteCategory] = useState(null)
@@ -145,11 +147,31 @@ export default function App() {
   const caseStageRef = useRef(null)
   const caseDragRef = useRef(null)
   const contentCanvasRef = useRef(null)
+  const lastScrollYRef = useRef(0)
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    onScroll()
+    let animationFrame = 0
+    lastScrollYRef.current = window.scrollY
+    const updateHeader = () => {
+      const currentY = Math.max(0, window.scrollY)
+      const delta = currentY - lastScrollYRef.current
+      setScrolled(currentY > 40)
+      if (currentY <= 24) {
+        setIsHeaderHidden(false)
+      } else if (Math.abs(delta) >= 1) {
+        setIsHeaderHidden(delta > 0)
+      }
+      lastScrollYRef.current = currentY
+      animationFrame = 0
+    }
+    const onScroll = () => {
+      if (!animationFrame) animationFrame = requestAnimationFrame(updateHeader)
+    }
+    updateHeader()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (animationFrame) cancelAnimationFrame(animationFrame)
+    }
   }, [])
 
   useEffect(() => {
@@ -210,9 +232,26 @@ export default function App() {
     setCaseZoom(1)
     setCasePan({ x: 0, y: 0 })
     setCaseFitSize(null)
+    setCaseLayout({ stageHeight: 630, canvasHeight: 858, scale: 1 })
     setIsCaseDragging(false)
     caseDragRef.current = null
   }, [activeCase, activeCasePage])
+
+  const updateCaseLayout = (image) => {
+    if (!image?.naturalWidth || !image?.naturalHeight) return
+    const imageRatio = image.naturalWidth / image.naturalHeight
+    const stageHeight = Math.round(Math.max(470, Math.min(690, 1120 / imageRatio)))
+    const canvasHeight = stageHeight + 228
+    const viewportWidth = document.documentElement.clientWidth
+    const viewportHeight = document.documentElement.clientHeight
+    const scale = Math.min(1, (viewportWidth - 24) / 1280, (viewportHeight - 24) / canvasHeight)
+    setCaseLayout({ stageHeight, canvasHeight, scale: Math.max(.25, scale) })
+  }
+
+  const handleCaseImageLoad = (event) => {
+    updateCaseLayout(event.currentTarget)
+    if (activeCase?.id === '06') requestAnimationFrame(fitFoundationImage)
+  }
 
   const fitFoundationImage = () => {
     if (activeCase?.id !== '06') return
@@ -249,6 +288,7 @@ export default function App() {
   }
 
   const handleCaseWheel = (event) => {
+    if (event.ctrlKey || event.metaKey) return
     event.preventDefault()
     const direction = event.deltaY < 0 ? 1 : -1
     const nextZoom = Math.max(1, Math.min(4, Number((caseZoom + direction * .2).toFixed(2))))
@@ -303,7 +343,7 @@ export default function App() {
 
   return (
     <main>
-      <header className={scrolled ? 'site-header is-scrolled' : 'site-header'}>
+      <header className={`site-header${scrolled ? ' is-scrolled' : ''}${isHeaderHidden ? ' is-hidden' : ''}`}>
         <a className="brand" href="#top" aria-label="返回首页">
           <span>靳煜飞</span>
         </a>
@@ -515,6 +555,8 @@ export default function App() {
       </div>
       {activeCase && (
         <div className={`case-viewer${activeCase.id === '06' ? ' is-foundation' : ''}`} role="dialog" aria-modal="true" aria-label={`${activeCase.title} 完整案例`}>
+          <div className="case-canvas-shell" style={{ width: `${1280 * caseLayout.scale}px`, height: `${caseLayout.canvasHeight * caseLayout.scale}px` }}>
+          <div className="case-canvas" style={{ '--case-stage-height': `${caseLayout.stageHeight}px`, '--case-canvas-height': `${caseLayout.canvasHeight}px`, transform: `scale(${caseLayout.scale})` }}>
           <header className="case-viewer-head">
             <div><small>PROJECT CASE / {activeCase.id}</small><strong>{activeCase.title} <i>{activeCase.en}</i></strong></div>
             <div className="case-progress"><span>{String(activeCasePage + 1).padStart(2, '0')}</span> / {String(projectCasePages[activeCase.id].length).padStart(2, '0')}</div>
@@ -535,7 +577,7 @@ export default function App() {
               alt={`${activeCase.title} 案例第 ${activeCasePage + 1} 页`}
               draggable="false"
               className={activeCase.id === '06' && caseFitSize ? 'is-fit-ready' : undefined}
-              onLoad={activeCase.id === '06' ? fitFoundationImage : undefined}
+              onLoad={handleCaseImageLoad}
               style={{
                 ...(activeCase.id === '06' && caseFitSize ? {
                   width: `${caseFitSize.width}px`,
@@ -558,6 +600,8 @@ export default function App() {
                 <span>{String(pageIndex + 1).padStart(2, '0')}</span>
               </button>
             ))}
+          </div>
+          </div>
           </div>
         </div>
       )}
