@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const projects = [
   {
@@ -74,7 +74,22 @@ const projectCasePages = {
   '03': ['/portfolio/resume-10.jpg', '/portfolio/resume-11.jpg', '/portfolio/resume-12.jpg', '/portfolio/resume-13.jpg'],
   '04': ['/portfolio/resume-17.jpg', '/portfolio/resume-18.jpg', '/portfolio/resume-19.jpg'],
   '05': ['/portfolio/resume-14.jpg?v=20260813-2', '/portfolio/resume-15.jpg?v=20260813-2', '/portfolio/resume-16.jpg?v=20260813-2'],
-  '06': ['/portfolio/resume-23.jpg'],
+  '06': [
+    '/portfolio/foundation-01.jpg',
+    '/portfolio/foundation-02.jpg',
+    '/portfolio/foundation-03.jpg',
+    '/portfolio/foundation-04.jpg',
+    '/portfolio/foundation-05.jpg',
+    '/portfolio/foundation-06.jpg',
+    '/portfolio/foundation-07.jpg',
+    '/portfolio/foundation-08.jpg',
+    '/portfolio/foundation-09.jpg',
+    '/portfolio/foundation-10.jpg',
+    '/portfolio/foundation-11.jpg',
+    '/portfolio/foundation-12.jpg',
+    '/portfolio/foundation-13.jpg',
+    '/portfolio/foundation-14.jpg',
+  ],
 }
 
 function CapabilityIcon({ type }) {
@@ -88,15 +103,89 @@ function CapabilityIcon({ type }) {
   return <svg className="cap-svg" viewBox="0 0 48 48" aria-hidden="true" {...common}>{icons[type]}</svg>
 }
 
+function NoteCategoryIcon({ type }) {
+  const common = { fill: 'none', stroke: 'currentColor', strokeWidth: '1.45', strokeLinecap: 'round', strokeLinejoin: 'round' }
+  const icons = {
+    'UE专项': <>
+      <circle cx="24" cy="24" r="16" />
+      <path d="M14.5 22.5a10.2 10.2 0 0 0 4.1 9.7M33.5 22.5a10.2 10.2 0 0 1-4.1 9.7" opacity=".52" />
+      <path d="M17 15v11.2c0 4.4 2.5 7 7 7s7-2.6 7-7V15M21 15v11c0 1.9 1 3 3 3s3-1.1 3-3V15" />
+      <path d="m30.5 12.5 3.5 2.2-3.2 2.4" opacity=".7" />
+    </>,
+    '模型基础': <>
+      <path d="m24 8 14 8-14 8-14-8 14-8Z" />
+      <path d="M10 16v16l14 8 14-8V16M24 24v16" />
+      <path d="m10 24 14 8 14-8M17 12l14 8" opacity=".56" />
+      <circle cx="24" cy="8" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="32" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="38" cy="32" r="1.4" fill="currentColor" stroke="none" />
+    </>,
+    '方法技巧': <>
+      <path d="M11 37h22M14 12h18v21H14z" opacity=".64" />
+      <path d="M18 18h9M18 22h7" opacity=".5" />
+      <path d="m35 9 4 4-13.5 16.5-6.5 3 2.4-6.7L35 9Z" />
+      <path d="m32.5 12 4 4M21.4 25.8l4.1 3.7" />
+    </>,
+  }
+  return <svg className="note-category-icon" viewBox="0 0 48 48" aria-hidden="true" {...common}>{icons[type]}</svg>
+}
+
 export default function App() {
   const [scrolled, setScrolled] = useState(false)
   const [activeCase, setActiveCase] = useState(null)
   const [activeCasePage, setActiveCasePage] = useState(0)
+  const [caseZoom, setCaseZoom] = useState(1)
+  const [casePan, setCasePan] = useState({ x: 0, y: 0 })
+  const [caseFitSize, setCaseFitSize] = useState(null)
+  const [isCaseDragging, setIsCaseDragging] = useState(false)
+  const [isNoteMenuOpen, setIsNoteMenuOpen] = useState(false)
+  const [activeNoteCategory, setActiveNoteCategory] = useState(null)
+  const caseImageRef = useRef(null)
+  const caseStageRef = useRef(null)
+  const caseDragRef = useRef(null)
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    const closeNoteMenu = (event) => {
+      if (event.key === 'Escape') setIsNoteMenuOpen(false)
+    }
+    window.addEventListener('keydown', closeNoteMenu)
+    return () => window.removeEventListener('keydown', closeNoteMenu)
+  }, [])
+
+  useEffect(() => {
+    let initialScale = null
+    const updatePageScale = () => {
+      const viewportWidth = document.documentElement.clientWidth
+      const fitScale = viewportWidth / 1280
+      if (initialScale === null) initialScale = fitScale
+      const scale = Math.min(initialScale, fitScale)
+      const viewport = document.querySelector('.page-viewport')
+      const canvas = document.querySelector('.page-canvas')
+      document.documentElement.style.setProperty('--page-scale', String(scale))
+      document.documentElement.style.setProperty('--page-offset', `${Math.max(0, (viewportWidth - 1280 * scale) / 2)}px`)
+      document.documentElement.style.setProperty('--header-top', `${18 * scale}px`)
+      if (viewport && canvas) viewport.style.height = `${canvas.offsetHeight * scale}px`
+    }
+    const canvas = document.querySelector('.page-canvas')
+    const observer = new ResizeObserver(updatePageScale)
+    if (canvas) observer.observe(canvas)
+    updatePageScale()
+    window.addEventListener('resize', updatePageScale, { passive: true })
+    window.visualViewport?.addEventListener('resize', updatePageScale, { passive: true })
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', updatePageScale)
+      window.visualViewport?.removeEventListener('resize', updatePageScale)
+      document.documentElement.style.removeProperty('--page-scale')
+      document.documentElement.style.removeProperty('--page-offset')
+      document.documentElement.style.removeProperty('--header-top')
+    }
   }, [])
 
   useEffect(() => {
@@ -114,6 +203,94 @@ export default function App() {
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [activeCase])
+
+  useEffect(() => {
+    setCaseZoom(1)
+    setCasePan({ x: 0, y: 0 })
+    setCaseFitSize(null)
+    setIsCaseDragging(false)
+    caseDragRef.current = null
+  }, [activeCase, activeCasePage])
+
+  const fitFoundationImage = () => {
+    if (activeCase?.id !== '06') return
+    const stage = caseStageRef.current
+    const image = caseImageRef.current
+    if (!stage || !image || !image.naturalWidth || !image.naturalHeight) return
+    const fitScale = Math.min(
+      stage.clientWidth / image.naturalWidth,
+      stage.clientHeight / image.naturalHeight,
+    )
+    setCaseFitSize({
+      width: image.naturalWidth * fitScale,
+      height: image.naturalHeight * fitScale,
+    })
+  }
+
+  useEffect(() => {
+    if (activeCase?.id !== '06' || !caseStageRef.current) return undefined
+    const observer = new ResizeObserver(fitFoundationImage)
+    observer.observe(caseStageRef.current)
+    fitFoundationImage()
+    return () => observer.disconnect()
+  }, [activeCase, activeCasePage])
+
+  const clampCasePan = (x, y, scale = caseZoom) => {
+    const image = caseImageRef.current
+    if (!image || scale <= 1) return { x: 0, y: 0 }
+    const maxX = image.clientWidth * (scale - 1) / 2
+    const maxY = image.clientHeight * (scale - 1) / 2
+    return {
+      x: Math.max(-maxX, Math.min(maxX, x)),
+      y: Math.max(-maxY, Math.min(maxY, y)),
+    }
+  }
+
+  const handleCaseWheel = (event) => {
+    event.preventDefault()
+    const direction = event.deltaY < 0 ? 1 : -1
+    const nextZoom = Math.max(1, Math.min(4, Number((caseZoom + direction * .2).toFixed(2))))
+    if (nextZoom === caseZoom) return
+    if (nextZoom === 1) {
+      setCasePan({ x: 0, y: 0 })
+      setIsCaseDragging(false)
+      caseDragRef.current = null
+    } else {
+      const ratio = nextZoom / caseZoom
+      setCasePan(clampCasePan(casePan.x * ratio, casePan.y * ratio, nextZoom))
+    }
+    setCaseZoom(nextZoom)
+  }
+
+  const handleCasePointerDown = (event) => {
+    if (caseZoom <= 1 || event.button !== 0) return
+    event.currentTarget.setPointerCapture(event.pointerId)
+    caseDragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: casePan.x,
+      originY: casePan.y,
+    }
+    setIsCaseDragging(true)
+  }
+
+  const handleCasePointerMove = (event) => {
+    const drag = caseDragRef.current
+    if (!drag || drag.pointerId !== event.pointerId || caseZoom <= 1) return
+    setCasePan(clampCasePan(
+      drag.originX + event.clientX - drag.startX,
+      drag.originY + event.clientY - drag.startY,
+    ))
+  }
+
+  const endCaseDrag = (event) => {
+    const drag = caseDragRef.current
+    if (!drag || drag.pointerId !== event.pointerId) return
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+    caseDragRef.current = null
+    setIsCaseDragging(false)
+  }
 
   const openCase = (project) => {
     setActiveCasePage(0)
@@ -148,6 +325,8 @@ export default function App() {
         <span className="nav-scroll-hint" aria-hidden="true" />
       </header>
 
+      <div className="page-viewport">
+      <div className="page-canvas">
       <section className="hero" id="top">
         <div className="hero-media" aria-hidden="true">
           <div className="hero-video-blur" />
@@ -251,7 +430,40 @@ export default function App() {
           <div className="section-kicker"><span>04</span><p>LEARNING HABITS / 学习习惯</p><div className="section-summary">主动建立知识结构、记录实践过程，并用长期训练校准自己的视觉判断。</div></div>
           <div className="learning-list">
             <article className="learning-card">
-              <div className="learning-meta"><span>01 / LEARNING PROCESS</span><h3>学习过程</h3><p>主动整理 PBR 流程与制作问题，通过公开分享获取反馈；从白模、模块管理到材质与灯光建立过程记录，并在项目完成后持续复盘，让学习经验沉淀为可复用的方法。</p></div>
+              <div className="learning-meta">
+                <span>01 / LEARNING PROCESS</span>
+                <h3>学习过程</h3>
+                <p>主动整理 PBR 流程与制作问题，通过公开分享获取反馈；从白模、模块管理到材质与灯光建立过程记录，并在项目完成后持续复盘，让学习经验沉淀为可复用的方法。</p>
+                <div className="note-detail-control">
+                  <button
+                    className="project-overlay note-detail-trigger"
+                    type="button"
+                    aria-expanded={isNoteMenuOpen}
+                    aria-controls="note-detail-menu"
+                    onClick={() => setIsNoteMenuOpen(open => !open)}
+                  >
+                    <span>笔记详情</span><Arrow />
+                  </button>
+                  {isNoteMenuOpen && (
+                    <div className="note-detail-menu" id="note-detail-menu" aria-label="笔记分类">
+                      <div className="note-menu-signal" aria-hidden="true"><i /><i /><i /></div>
+                      {['UE专项', '模型基础', '方法技巧'].map((category, index) => (
+                        <button
+                          type="button"
+                          className={activeNoteCategory === category ? 'is-active' : ''}
+                          aria-pressed={activeNoteCategory === category}
+                          onClick={() => setActiveNoteCategory(category)}
+                          key={category}
+                        >
+                          <small>{String(index + 1).padStart(2, '0')}</small>
+                          <span>{category}</span>
+                          <span className="note-category-icon-wrap"><NoteCategoryIcon type={category} /></span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="learning-media-pair">
                 <img src="/portfolio/resume-21.jpg" alt="PBR流程学习笔记与公开分享" loading="lazy" />
                 <img src="/portfolio/resume-22.jpg" alt="UE场景学习过程与方法记录" loading="lazy" />
@@ -296,15 +508,40 @@ export default function App() {
       </footer>
       </div>
       </div>
+      </div>
+      </div>
       {activeCase && (
-        <div className="case-viewer" role="dialog" aria-modal="true" aria-label={`${activeCase.title} 完整案例`}>
+        <div className={`case-viewer${activeCase.id === '06' ? ' is-foundation' : ''}`} role="dialog" aria-modal="true" aria-label={`${activeCase.title} 完整案例`}>
           <header className="case-viewer-head">
             <div><small>PROJECT CASE / {activeCase.id}</small><strong>{activeCase.title} <i>{activeCase.en}</i></strong></div>
             <div className="case-progress"><span>{String(activeCasePage + 1).padStart(2, '0')}</span> / {String(projectCasePages[activeCase.id].length).padStart(2, '0')}</div>
             <button className="case-close" type="button" onClick={() => setActiveCase(null)} aria-label="关闭案例"><span>关闭</span><i aria-hidden="true">×</i></button>
           </header>
-          <div className="case-stage">
-            <img src={projectCasePages[activeCase.id][activeCasePage]} alt={`${activeCase.title} 案例第 ${activeCasePage + 1} 页`} />
+          <div
+            ref={caseStageRef}
+            className={`case-stage${caseZoom > 1 ? ' is-zoomed' : ''}${isCaseDragging ? ' is-dragging' : ''}`}
+            onWheel={handleCaseWheel}
+            onPointerDown={handleCasePointerDown}
+            onPointerMove={handleCasePointerMove}
+            onPointerUp={endCaseDrag}
+            onPointerCancel={endCaseDrag}
+          >
+            <img
+              ref={caseImageRef}
+              src={projectCasePages[activeCase.id][activeCasePage]}
+              alt={`${activeCase.title} 案例第 ${activeCasePage + 1} 页`}
+              draggable="false"
+              className={activeCase.id === '06' && caseFitSize ? 'is-fit-ready' : undefined}
+              onLoad={activeCase.id === '06' ? fitFoundationImage : undefined}
+              style={{
+                ...(activeCase.id === '06' && caseFitSize ? {
+                  width: `${caseFitSize.width}px`,
+                  height: `${caseFitSize.height}px`,
+                } : {}),
+                transform: `translate3d(${casePan.x}px,${casePan.y}px,0) scale(${caseZoom})`,
+              }}
+            />
+            <div className="case-zoom-status" aria-live="polite"><span>{Math.round(caseZoom * 100)}%</span><small>{caseZoom > 1 ? '按住拖动查看' : '滚轮缩放'}</small></div>
           </div>
           <div className="case-pagination" aria-label="案例翻页">
             <button className="case-nav prev" type="button" onClick={() => setActiveCasePage(page => (page - 1 + projectCasePages[activeCase.id].length) % projectCasePages[activeCase.id].length)} aria-label="上一页"><span>←</span><small>上一页</small></button>
