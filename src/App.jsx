@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import BorderGlowEffects from './BorderGlow'
 import GradientWaves from './GradientWaves'
 
@@ -96,12 +96,14 @@ const projectCasePages = {
   'note-model': ['png', 'png', 'jpg', 'png', 'png', 'png', 'png', 'png', 'png', 'jpg', 'jpg', 'jpg', 'png', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'png', 'png', 'png', 'png', 'png', 'png', 'png', 'png', 'png', 'png', 'png']
     .map((extension, index) => `/notes/model/model-note-${String(index + 1).padStart(2, '0')}.${extension}`),
   'note-marmoset': Array.from({ length: 2 }, (_, index) => `/notes/marmoset/marmoset-note-${String(index + 1).padStart(2, '0')}.png${index === 0 ? '?v=20260820-2' : ''}`),
+  'note-review-watson': ['/notes/review-watson/watson-review-01.png'],
 }
 
 const projectCaseThumbs = {
   'note-ue': Array.from({ length: 20 }, (_, index) => `/notes/ue/thumbs/ue-note-${String(index + 1).padStart(2, '0')}.jpg${index === 1 ? '?v=20260815-2' : ''}`),
   'note-model': Array.from({ length: 33 }, (_, index) => `/notes/model/thumbs/model-note-${String(index + 1).padStart(2, '0')}.jpg`),
   'note-marmoset': Array.from({ length: 2 }, (_, index) => `/notes/marmoset/thumbs/marmoset-note-${String(index + 1).padStart(2, '0')}.jpg${index === 0 ? '?v=20260820-2' : ''}`),
+  'note-review-watson': ['/notes/review-watson/thumbs/watson-review-01.jpg'],
 }
 
 const getCaseThumbnail = (caseId, page, pageIndex) => {
@@ -134,6 +136,18 @@ const noteCases = {
     archive: 'MARMOSET',
     kind: 'note',
   },
+  '沃森区食驿': {
+    id: 'note-review-watson',
+    title: '沃森区食驿',
+    en: 'PROJECT REVIEW NOTES',
+    archive: 'REVIEW',
+    kind: 'note',
+  },
+}
+
+const noteSubprojects = {
+  '方法技巧': { number: '03.1', title: 'Marmoset Toolbag' },
+  '复盘整理': { number: '04.1', title: '沃森区食驿' },
 }
 
 function CapabilityIcon({ type }) {
@@ -169,6 +183,12 @@ function NoteCategoryIcon({ type }) {
       <path d="M18 18h9M18 22h7" opacity=".5" />
       <path d="m35 9 4 4-13.5 16.5-6.5 3 2.4-6.7L35 9Z" />
       <path d="m32.5 12 4 4M21.4 25.8l4.1 3.7" />
+    </>,
+    '复盘整理': <>
+      <path d="M13 16h18M13 23h14M13 30h10" opacity=".62" />
+      <path d="M34 17a14 14 0 1 1-4-6" />
+      <path d="m28 7 6 4-5 5" />
+      <path d="m30 29 3 3 6-7" />
     </>,
   }
   return <svg className="note-category-icon" viewBox="0 0 48 48" aria-hidden="true" {...common}>{icons[type]}</svg>
@@ -418,7 +438,7 @@ export default function App() {
         </nav>
         <a
           className="portfolio-download"
-          href="/portfolio/jinyufei-3d-portfolio.pdf"
+          href="/portfolio/jinyufei-3d-portfolio.pdf?v=20260821"
           download="靳煜飞-3D场景作品集.pdf"
           aria-label="下载靳煜飞的最新作品集 PDF"
         >
@@ -552,44 +572,48 @@ export default function App() {
                   {isNoteMenuOpen && (
                     <div className="note-detail-menu" id="note-detail-menu" aria-label="笔记分类">
                       <div className="note-menu-signal" aria-hidden="true"><i /><i /><i /></div>
-                      {['UE专项', '模型基础', '方法技巧'].map((category, index) => (
-                        <button
-                          type="button"
-                          className={activeNoteCategory === category ? 'is-active' : ''}
-                          aria-pressed={activeNoteCategory === category}
-                          aria-expanded={category === '方法技巧' ? activeNoteCategory === category : undefined}
-                          onClick={() => {
-                            const isCollapsing = category === '方法技巧' && activeNoteCategory === category
-                            setActiveNoteCategory(isCollapsing ? null : category)
-                            setActiveNoteSubcategory(null)
-                            if (noteCases[category]) {
-                              setIsNoteMenuOpen(false)
-                              openCase(noteCases[category])
-                            }
-                          }}
-                          key={category}
-                        >
-                          <small>{String(index + 1).padStart(2, '0')}</small>
-                          <span>{category}</span>
-                          <span className="note-category-icon-wrap"><NoteCategoryIcon type={category} /></span>
-                        </button>
-                      ))}
-                      {activeNoteCategory === '方法技巧' && (
-                        <button
-                          type="button"
-                          className={`note-subproject${activeNoteSubcategory === 'Marmoset Toolbag' ? ' is-active' : ''}`}
-                          aria-pressed={activeNoteSubcategory === 'Marmoset Toolbag'}
-                          onClick={() => {
-                            setActiveNoteSubcategory('Marmoset Toolbag')
-                            setIsNoteMenuOpen(false)
-                            openCase(noteCases['Marmoset Toolbag'])
-                          }}
-                        >
-                          <small>03.1</small>
-                          <span>Marmoset Toolbag</span>
-                          <i aria-hidden="true">↳</i>
-                        </button>
-                      )}
+                      {['UE专项', '模型基础', '方法技巧', '复盘整理'].map((category, index) => {
+                        const subproject = noteSubprojects[category]
+                        const isExpanded = Boolean(subproject) && activeNoteCategory === category
+                        return (
+                          <Fragment key={category}>
+                            <button
+                              type="button"
+                              className={activeNoteCategory === category ? 'is-active' : ''}
+                              aria-pressed={activeNoteCategory === category}
+                              aria-expanded={subproject ? isExpanded : undefined}
+                              onClick={() => {
+                                setActiveNoteCategory(isExpanded ? null : category)
+                                setActiveNoteSubcategory(null)
+                                if (noteCases[category]) {
+                                  setIsNoteMenuOpen(false)
+                                  openCase(noteCases[category])
+                                }
+                              }}
+                            >
+                              <small>{String(index + 1).padStart(2, '0')}</small>
+                              <span>{category}</span>
+                              <span className="note-category-icon-wrap"><NoteCategoryIcon type={category} /></span>
+                            </button>
+                            {isExpanded && (
+                              <button
+                                type="button"
+                                className={`note-subproject${activeNoteSubcategory === subproject.title ? ' is-active' : ''}`}
+                                aria-pressed={activeNoteSubcategory === subproject.title}
+                                onClick={() => {
+                                  setActiveNoteSubcategory(subproject.title)
+                                  setIsNoteMenuOpen(false)
+                                  openCase(noteCases[subproject.title])
+                                }}
+                              >
+                                <small>{subproject.number}</small>
+                                <span>{subproject.title}</span>
+                                <i aria-hidden="true">↳</i>
+                              </button>
+                            )}
+                          </Fragment>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
