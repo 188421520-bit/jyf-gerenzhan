@@ -1,0 +1,59 @@
+.gradient-waves-container{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+.gradient-waves-container canvas{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+.content-canvas{
+  position:relative;
+  isolation:isolate;
+  background:#080b0e;
+}
+.content-waves{
+  position:sticky;
+  z-index:0;
+  top:0;
+  width:1280px;
+  height:720px;
+  margin-bottom:-720px;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 22%,rgba(45,103,151,.12),transparent 50%),
+    #080b0e;
+}
+.content-waves::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(8,11,14,.14),rgba(8,11,14,.36));
+  pointer-events:none;
+}
+.content-canvas>.section,
+.content-canvas>.contact{
+  position:relative;
+  z-index:1;
+}
+.content-canvas>.about,
+.content-canvas>.projects,
+.content-canvas>.learning,
+.content-canvas>.strengths,
+.content-canvas>.contact{
+  background-color:rgba(8,11,14,.7);
+}
+.content-canvas>.projects{
+  background-image:linear-gradient(180deg,rgba(7,9,11,.78),rgba(10,12,14,.68) 50%,rgba(7,9,11,.78));
+}
+.content-canvas>.learning{
+  background-image:
+    radial-gradient(circle at 85% 20%,rgba(109,169,255,.07),transparent 27%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 12.5%);
+}
+
+@media(prefers-reduced-motion:reduce){
+  .content-waves{opacity:.62}
+}

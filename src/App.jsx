@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import BorderGlowEffects from './BorderGlow'
+import GradientWaves from './GradientWaves'
 
 const projects = [
   {
@@ -92,10 +93,15 @@ const projectCasePages = {
     '/portfolio/foundation-14.jpg',
   ],
   'note-ue': Array.from({ length: 20 }, (_, index) => `/notes/ue/ue-note-${String(index + 1).padStart(2, '0')}.png${index === 1 ? '?v=20260815-2' : ''}`),
+  'note-model': ['png', 'png', 'jpg', 'png', 'png', 'png', 'png', 'png', 'png', 'jpg', 'jpg', 'jpg', 'png', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'png', 'png', 'png', 'png', 'png', 'png', 'png', 'png', 'png', 'png', 'png']
+    .map((extension, index) => `/notes/model/model-note-${String(index + 1).padStart(2, '0')}.${extension}`),
+  'note-marmoset': Array.from({ length: 2 }, (_, index) => `/notes/marmoset/marmoset-note-${String(index + 1).padStart(2, '0')}.png${index === 0 ? '?v=20260820-2' : ''}`),
 }
 
 const projectCaseThumbs = {
   'note-ue': Array.from({ length: 20 }, (_, index) => `/notes/ue/thumbs/ue-note-${String(index + 1).padStart(2, '0')}.jpg${index === 1 ? '?v=20260815-2' : ''}`),
+  'note-model': Array.from({ length: 33 }, (_, index) => `/notes/model/thumbs/model-note-${String(index + 1).padStart(2, '0')}.jpg`),
+  'note-marmoset': Array.from({ length: 2 }, (_, index) => `/notes/marmoset/thumbs/marmoset-note-${String(index + 1).padStart(2, '0')}.jpg${index === 0 ? '?v=20260820-2' : ''}`),
 }
 
 const getCaseThumbnail = (caseId, page, pageIndex) => {
@@ -111,6 +117,21 @@ const noteCases = {
     id: 'note-ue',
     title: 'UE专项',
     en: 'UNREAL ENGINE NOTES',
+    archive: 'UE',
+    kind: 'note',
+  },
+  '模型基础': {
+    id: 'note-model',
+    title: '模型基础',
+    en: 'MODELING FOUNDATION NOTES',
+    archive: 'MODEL',
+    kind: 'note',
+  },
+  'Marmoset Toolbag': {
+    id: 'note-marmoset',
+    title: 'Marmoset Toolbag',
+    en: 'RENDERING NOTES',
+    archive: 'MARMOSET',
     kind: 'note',
   },
 }
@@ -165,6 +186,7 @@ export default function App() {
   const [isCaseDragging, setIsCaseDragging] = useState(false)
   const [isNoteMenuOpen, setIsNoteMenuOpen] = useState(false)
   const [activeNoteCategory, setActiveNoteCategory] = useState(null)
+  const [activeNoteSubcategory, setActiveNoteSubcategory] = useState(null)
   const caseImageRef = useRef(null)
   const caseStageRef = useRef(null)
   const caseDragRef = useRef(null)
@@ -252,20 +274,26 @@ export default function App() {
     setCaseZoom(1)
     setCasePan({ x: 0, y: 0 })
     setCaseFitSize(null)
-    setCaseLayout({ stageHeight: 630, canvasHeight: 858, scale: 1 })
+    setCaseLayout(createCaseLayout(activeCase?.kind === 'note' ? 690 : 630))
     setIsCaseDragging(false)
     caseDragRef.current = null
   }, [activeCase, activeCasePage])
 
-  const updateCaseLayout = (image) => {
-    if (!image?.naturalWidth || !image?.naturalHeight) return
-    const imageRatio = image.naturalWidth / image.naturalHeight
-    const stageHeight = Math.round(Math.max(470, Math.min(690, 1120 / imageRatio)))
+  const createCaseLayout = (stageHeight) => {
     const canvasHeight = stageHeight + 228
     const viewportWidth = document.documentElement.clientWidth
     const viewportHeight = document.documentElement.clientHeight
     const scale = Math.min(1, (viewportWidth - 24) / 1280, (viewportHeight - 24) / canvasHeight)
-    setCaseLayout({ stageHeight, canvasHeight, scale: Math.max(.25, scale) })
+    return { stageHeight, canvasHeight, scale: Math.max(.25, scale) }
+  }
+
+  const updateCaseLayout = (image) => {
+    if (!image?.naturalWidth || !image?.naturalHeight) return
+    const imageRatio = image.naturalWidth / image.naturalHeight
+    const stageHeight = activeCase?.kind === 'note'
+      ? 690
+      : Math.round(Math.max(470, Math.min(690, 1120 / imageRatio)))
+    setCaseLayout(createCaseLayout(stageHeight))
   }
 
   const handleCaseImageLoad = (event) => {
@@ -450,6 +478,7 @@ export default function App() {
 
       <div className="content-viewport">
       <div className="content-canvas" ref={contentCanvasRef}>
+      <GradientWaves className="content-waves" />
       <BorderGlowEffects rootRef={contentCanvasRef} edgeSensitivity={28} />
       <section className="about section shell" id="about">
         <div className="section-kicker"><span>01</span><p>PROFILE / 个人介绍</p><div className="section-summary">专注游戏 3D 场景设计，关注空间叙事、氛围塑造与资产复用。</div></div>
@@ -528,8 +557,11 @@ export default function App() {
                           type="button"
                           className={activeNoteCategory === category ? 'is-active' : ''}
                           aria-pressed={activeNoteCategory === category}
+                          aria-expanded={category === '方法技巧' ? activeNoteCategory === category : undefined}
                           onClick={() => {
-                            setActiveNoteCategory(category)
+                            const isCollapsing = category === '方法技巧' && activeNoteCategory === category
+                            setActiveNoteCategory(isCollapsing ? null : category)
+                            setActiveNoteSubcategory(null)
                             if (noteCases[category]) {
                               setIsNoteMenuOpen(false)
                               openCase(noteCases[category])
@@ -542,6 +574,22 @@ export default function App() {
                           <span className="note-category-icon-wrap"><NoteCategoryIcon type={category} /></span>
                         </button>
                       ))}
+                      {activeNoteCategory === '方法技巧' && (
+                        <button
+                          type="button"
+                          className={`note-subproject${activeNoteSubcategory === 'Marmoset Toolbag' ? ' is-active' : ''}`}
+                          aria-pressed={activeNoteSubcategory === 'Marmoset Toolbag'}
+                          onClick={() => {
+                            setActiveNoteSubcategory('Marmoset Toolbag')
+                            setIsNoteMenuOpen(false)
+                            openCase(noteCases['Marmoset Toolbag'])
+                          }}
+                        >
+                          <small>03.1</small>
+                          <span>Marmoset Toolbag</span>
+                          <i aria-hidden="true">↳</i>
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -597,7 +645,7 @@ export default function App() {
           <div className="case-canvas-shell" style={{ width: `${1280 * caseLayout.scale}px`, height: `${caseLayout.canvasHeight * caseLayout.scale}px` }}>
           <div className="case-canvas" style={{ '--case-stage-height': `${caseLayout.stageHeight}px`, '--case-canvas-height': `${caseLayout.canvasHeight}px`, zoom: caseLayout.scale }}>
           <header className="case-viewer-head">
-            <div><small>{activeCase.kind === 'note' ? 'NOTE ARCHIVE / UE' : `PROJECT CASE / ${activeCase.id}`}</small><strong>{activeCase.title} <i>{activeCase.en}</i></strong></div>
+            <div><small>{activeCase.kind === 'note' ? `NOTE ARCHIVE / ${activeCase.archive}` : `PROJECT CASE / ${activeCase.id}`}</small><strong>{activeCase.title} <i>{activeCase.en}</i></strong></div>
             <div className="case-progress"><span>{String(activeCasePage + 1).padStart(2, '0')}</span> / {String(projectCasePages[activeCase.id].length).padStart(2, '0')}</div>
             <button className="case-close" type="button" onClick={() => setActiveCase(null)} aria-label="关闭案例"><span>关闭</span><i aria-hidden="true">×</i></button>
           </header>

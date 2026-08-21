@@ -1184,6 +1184,35 @@ body.case-open{overflow:hidden}
   filter:drop-shadow(0 0 7px rgba(100,185,255,.55));
   transform:translateY(-1px);
 }
+.note-detail-menu>.note-subproject{
+  width:calc(100% - 32px);
+  height:38px;
+  margin-left:32px;
+  padding:0 12px;
+  grid-template-columns:34px 1fr 18px;
+  border-color:rgba(117,173,224,.14);
+  border-left-color:rgba(117,181,238,.34);
+  background:linear-gradient(90deg,rgba(83,143,198,.06),rgba(14,21,27,.35));
+}
+.note-detail-menu>.note-subproject:before{
+  content:"";
+  position:absolute;
+  left:-21px;
+  top:-8px;
+  width:14px;
+  height:27px;
+  border-left:1px solid rgba(109,169,255,.28);
+  border-bottom:1px solid rgba(109,169,255,.28);
+}
+.note-detail-menu>.note-subproject>span{
+  font-size:10px;
+  letter-spacing:.1em;
+}
+.note-detail-menu>.note-subproject>i{
+  color:#73b6f2;
+  font-style:normal;
+  text-align:right;
+}
 
 @media(max-width:1000px){
   .project-card{margin-bottom:60px}
@@ -2995,7 +3024,17 @@ body.case-open{overflow:hidden}
   color:#78b8f2;
   text-shadow:0 0 14px rgba(109,169,255,.24);
 }
-.content-canvas .cap-icon{margin:32px 0 auto}
+.content-canvas .strength-grid article>.border-glow-edge,
+.content-canvas .strength-grid article>.border-glow-fill{
+  grid-column:auto;
+  grid-row:auto;
+  align-self:auto;
+  justify-self:auto;
+}
+.content-canvas .cap-icon{
+  align-self:start;
+  margin:22px 0 26px;
+}
 .content-canvas .tool-marquee{
   flex-wrap:nowrap;
   gap:30px;
@@ -3359,3 +3398,7 @@ body.case-open{overflow:hidden}
   line-height:1.9;
   white-space:normal;
 }
+
+/* Preserve clipping without creating scroll containers, so the wave backdrop can stay fixed below the hero. */
+.page-viewport,
+.content-viewport{overflow:clip}
